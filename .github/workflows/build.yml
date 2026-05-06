@@ -47,10 +47,11 @@ jobs:
 
       - name: Build with Podman
         run: |
+          FULL_IMAGE="${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}"
           podman build \
             --format oci \
-            --tag ${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }} \
-            --tag ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} \
+            --tag ${FULL_IMAGE}:${{ env.DEFAULT_TAG }} \
+            --tag ${FULL_IMAGE}:${{ env.IMAGE_TAG }} \
             --file ./Containerfile \
             .
 
