@@ -1,5 +1,5 @@
----
 name: Build bootc image
+
 on:
   pull_request:
     branches:
@@ -14,11 +14,14 @@ on:
     paths-ignore:
       - "**/README.md"
   workflow_dispatch:
+
 env:
   IMAGE_DESC: "This is an image template"
   IMAGE_NAME: "${{ github.event.repository.name }}"
   IMAGE_REGISTRY: "ghcr.io/${{ github.repository_owner }}"
   DEFAULT_TAG: "latest"
+  IS_MAIN_PUSH: ${{ github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
+
 jobs:
   build_push:
     name: Build and push image
@@ -27,36 +30,49 @@ jobs:
       contents: read
       packages: write
       id-token: write
+
     steps:
       - name: Prepare environment
         run: |
           echo "IMAGE_REGISTRY=${IMAGE_REGISTRY,,}" >> ${GITHUB_ENV}
           echo "IMAGE_NAME=${IMAGE_NAME,,}" >> ${GITHUB_ENV}
           echo "IMAGE_TAG=$(date +%Y%m%d)" >> ${GITHUB_ENV}
+
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
+
+      - name: Install Cosign
+        if: env.IS_MAIN_PUSH == 'true'
+        uses: sigstore/cosign-installer@v3
+
       - name: Build with Podman
         run: |
           podman build \
+            --format oci \
             --tag ${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }} \
             --tag ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} \
             --file ./Containerfile \
             .
+
       - name: Login to GHCR
+        if: env.IS_MAIN_PUSH == 'true'
         uses: docker/login-action@v3
-        if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Push to GHCR
-        if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+        if: env.IS_MAIN_PUSH == 'true'
         id: push
         run: |
-          podman tag ${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }} ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }}
-          podman tag ${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }} ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
-          LATEST_DIGEST=$(podman push ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }} --digestfile /tmp/latest-digest.txt && cat /tmp/latest-digest.txt)
-          podman push ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
-          LATEST_IMAGE_REF="${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}@${LATEST_DIGEST}"
-          echo "digest=$LATEST_DIGEST" >> $GITHUB_OUTPUT
-          echo "image-ref=$LATEST_IMAGE_REF" >> $GITHUB_OUTPUT
+          FULL_IMAGE="${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}"
+          DIGEST=$(podman push ${FULL_IMAGE}:${{ env.DEFAULT_TAG }} --digestfile /tmp/digest.txt && cat /tmp/digest.txt)
+          podman push ${FULL_IMAGE}:${{ env.IMAGE_TAG }}
+          echo "digest=$DIGEST" >> $GITHUB_OUTPUT
+          echo "image-ref=${FULL_IMAGE}@${DIGEST}" >> $GITHUB_OUTPUT
+
+      - name: Sign image
+        if: env.IS_MAIN_PUSH == 'true'
+        run: |
+          cosign sign --yes ${{ steps.push.outputs.image-ref }}
