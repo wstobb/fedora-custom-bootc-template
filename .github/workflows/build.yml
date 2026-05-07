@@ -39,7 +39,7 @@ jobs:
           echo "IMAGE_TAG=$(date +%Y%m%d)" >> ${GITHUB_ENV}
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install Cosign
         if: env.IS_MAIN_PUSH == 'true'
