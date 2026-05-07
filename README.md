@@ -6,6 +6,14 @@ This repository serves as a base system for creating your own custom Fedora imag
 
 Use this repository as a template. In the `Containerfile` you can change the base image. Add packages and services to the configuration lists.
 
+### Switching
+
+On your atomic desktop, run:
+
+```
+sudo bootc switch ghcr.io/[username]/[image_name]
+```
+
 ## Components
 
 ### Containerfile
