@@ -11,5 +11,7 @@ if [ -s "/build/config/remove_packages.list" ]; then
 fi
 
 if [ -s "/build/config/swap_packages.list" ]; then
-	dnf swap -y $(tr '\n' ' ' < /build/config/swap_packages.list)
+	while IFS= read -r entry; do
+		dnf swap -y $entry
+	done < /build/config/swap_packages.list
 fi
