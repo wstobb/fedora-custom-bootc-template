@@ -19,15 +19,7 @@ sudo bootc switch ghcr.io/[username]/[image_name]
 ### Containerfile
 
 ```Dockerfile
-FROM scratch as build
-
-COPY / /
-
-FROM quay.io/fedora-ostree-desktops/silverblue:44
-
-RUN --mount=type=bind,from=build,source=/,target=/build \
-    /build/scripts/00-build.sh \
-    ostree container commit
+FROM quay.io/fedora/fedora-bootc:44
 ```
 
 The FROM statement is where you can set the base container and version. You do not need to edit anything else.
