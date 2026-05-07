@@ -2,6 +2,10 @@
 
 This repository serves as a base system for creating your own custom Fedora images. Bootc images are just OCI containers so you can easily customize and redeploy them. Podman, Github Actions, and bash are used for customizing the image. When the template is used, its action is automatically enabled with a sane cron schedule.
 
+Unlike other systems for customizing Fedora Images, this one seeks to be as simple as possible.
+
+*Video walkthrough coming soon*
+
 ## Usage
 
 Use this repository as a template. In the `Containerfile` you can change the base image. Add packages and services to the configuration lists.
@@ -22,7 +26,7 @@ sudo bootc switch ghcr.io/[username]/[image_name]
 FROM quay.io/fedora/fedora-bootc:44
 ```
 
-The FROM statement is where you can set the base container and version. You do not need to edit anything else.
+The FROM statement is where you can set the base container and version. You do not need to edit anything else in the `Containerfile`.
 
 ### Scripts
 
@@ -41,4 +45,4 @@ materia-kde
 
 ### System Root
 
-`sys_root` is where you put files that you want copied to the image's root file system. You can put configuration files here and other stuff you want to distribute.
+`sys_root` is where you put files that you want copied to the image's root file system. You can put configuration files here and other stuff you want to distribute (example: sys_root/etc/hostname).
