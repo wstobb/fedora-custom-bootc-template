@@ -19,14 +19,14 @@ sudo bootc switch ghcr.io/[username]/[image_name]
 ### Containerfile
 
 ```Dockerfile
-FROM scratch as ctx
+FROM scratch as build
 
 COPY / /
 
 FROM quay.io/fedora-ostree-desktops/silverblue:44
 
-RUN --mount=type=bind,from=ctx,source=/,target=/ctx \
-    /ctx/scripts/00-build.sh \
+RUN --mount=type=bind,from=build,source=/,target=/build \
+    /build/scripts/00-build.sh \
     ostree container commit
 ```
 
@@ -46,3 +46,7 @@ firefox
 obs-studio
 materia-kde
 ```
+
+### System Root
+
+`sys_root` is where you put files that you want copied to the image's root file system. You can put configuration files here and other stuff you want to distribute.
