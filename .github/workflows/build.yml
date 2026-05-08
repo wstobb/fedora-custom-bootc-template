@@ -50,6 +50,9 @@ jobs:
           FULL_IMAGE="${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}"
           podman build \
             --format oci \
+            --label "org.opencontainers.image.description=${{ env.IMAGE_DESC }}" \
+            --label "org.opencontainers.image.source=https://github.com/${{ github.repository }}" \
+            --label "org.opencontainers.image.revision=${{ github.sha }}" \
             --tag ${FULL_IMAGE}:${{ env.DEFAULT_TAG }} \
             --tag ${FULL_IMAGE}:${{ env.IMAGE_TAG }} \
             --file ./Containerfile \
