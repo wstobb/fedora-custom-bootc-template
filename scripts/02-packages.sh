@@ -11,7 +11,9 @@ if [ -s "/build/config/remove_packages.list" ]; then
 fi
 
 if [ -s "/build/config/swap_packages.list" ]; then
-	while read -r remove install <&3; do
+	mapfile -t lines < /build/config/swap_packages.list
+	for line in "${lines[@]}"; do
+		read -r remove install <<< "$line"
 		dnf swap -y "$remove" "$install"
-	done 3< /build/config/swap_packages.list
+	done
 fi
