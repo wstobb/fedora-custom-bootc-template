@@ -1,6 +1,6 @@
 # Custom Fedora Atomic Image
 
-This repository serves as a base system for creating your own custom Fedora images. Bootc images are just OCI containers so you can easily customize and redeploy them. Podman, Github Actions, and bash are used for customizing the image. When the template is used, its action is automatically enabled with a sane cron schedule.
+This repository serves as a base system for creating your own custom Fedora images. Bootc images are just OCI containers so you can easily customize and redeploy them. Podman, Github Actions, and bash are used for customizing the image. When the template is used, its action is automatically enabled with a sane cron schedule (every Sunday).
 
 Unlike other systems for customizing Fedora Images, this one seeks to be as simple as possible.
 
