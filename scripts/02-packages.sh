@@ -11,7 +11,7 @@ if [ -s "/build/config/remove_packages.list" ]; then
 fi
 
 if [ -s "/build/config/swap_packages.list" ]; then
-	while IFS= read -r entry; do
-		dnf swap -y $entry
+	while read -r remove install <&3; do
+		dnf swap -y "$remove" "$install"
 	done 3< /build/config/swap_packages.list
 fi
