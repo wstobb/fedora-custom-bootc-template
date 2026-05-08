@@ -13,5 +13,5 @@ fi
 if [ -s "/build/config/swap_packages.list" ]; then
 	while IFS= read -r entry; do
 		dnf swap -y $entry
-	done < /build/config/swap_packages.list
+	done 3< /build/config/swap_packages.list
 fi
